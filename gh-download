@@ -128,7 +128,14 @@ function download() {
     for ((i = 0; i < ${#URLS[@]}; i += 2)); do
         parallel_args+=" ${URLS[i]} --output \"${URLS[i + 1]}\""
     done
-    command="curl --silent --location --create-dirs --oauth2-bearer $token $parallel_args"
+
+    if [[ $chatty == 1 ]]; then
+        sil=''
+    else
+        sil='--silent'
+    fi
+
+    command="curl ${sil} --location --create-dirs --oauth2-bearer $token $parallel_args"
 
     if [[ $dry_run ]]; then
         echo "$command"
