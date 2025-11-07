@@ -3,7 +3,7 @@
 # refs: http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -eo pipefail
 IFS=$'\n\t'
-chatty=true
+chatty=1
 
 CLI=$(basename "${BASH_SOURCE[0]}")
 
@@ -105,7 +105,7 @@ collection_file() {
         dest=$file
     fi
 
-    if [[ $chatty ]]; then
+    if [[ $chatty == 1 ]]; then
         echo "Collection file: \`$file\` downloading to \`$dest\`"
     fi
 
@@ -156,7 +156,7 @@ while [[ $# -gt 0 ]]; do
         shift
         ;;
     --quiet)
-        chatty=false
+        chatty=0
         shift
         ;;
     -d | --dry-run)
@@ -200,7 +200,7 @@ if [[ $# == 1 ]]; then
         path="${BASH_REMATCH[5]}"
 
         # TODO: Duplicated content below
-        if [[ $chatty ]]; then
+        if [[ $chatty == 1 ]]; then
             echo "Repo: $repo"
             echo "Branch: $branch"
         fi
@@ -228,7 +228,7 @@ if [[ ! $branch ]]; then
     branch=$(gh api "repos/$repo" --jq .default_branch)
 fi
 
-if [[ $chatty ]]; then
+if [[ $chatty == 1 ]]; then
     echo "Repo: $repo"
     echo "Branch: $branch"
 fi
