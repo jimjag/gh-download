@@ -3,6 +3,7 @@
 # refs: http://redsymbol.net/articles/unofficial-bash-strict-mode/
 set -eo pipefail
 IFS=$'\n\t'
+chatty=true
 
 CLI=$(basename "${BASH_SOURCE[0]}")
 
@@ -21,6 +22,7 @@ Options:
     -h, --help           output usage
     -v, --version        output version
     --verbose            enable debug
+    --quiet              silent/quiet mode
     -d, --dry-run        reports what would have been downloaded, but do not download anything
     -b, --branch         branch or tag name
     --outdir <path>      only support download single path(file/folder). Default is download current location and reserved repo dir path
@@ -103,7 +105,9 @@ collection_file() {
         dest=$file
     fi
 
-    echo "Collection file: \`$file\` downloading to \`$dest\`"
+    if [[ $chatty ]]; then
+        echo "Collection file: \`$file\` downloading to \`$dest\`"
+    fi
 
     URLS+=("https://raw.githubusercontent.com/$repo/$branch/$(urlencode_filename "$file")" "$dest")
 }
@@ -151,6 +155,9 @@ while [[ $# -gt 0 ]]; do
         set -x
         shift
         ;;
+    --quiet)
+        chatty=false
+        ;;
     -d | --dry-run)
         dry_run=true
         shift
@@ -192,8 +199,10 @@ if [[ $# == 1 ]]; then
         path="${BASH_REMATCH[5]}"
 
         # TODO: Duplicated content below
-        echo "Repo: $repo"
-        echo "Branch: $branch"
+        if [[ $chatty ]]; then
+            echo "Repo: $repo"
+            echo "Branch: $branch"
+        fi
 
         case "${BASH_REMATCH[3]}" in
         tree) collection_folder "$path" ;;
@@ -218,8 +227,10 @@ if [[ ! $branch ]]; then
     branch=$(gh api "repos/$repo" --jq .default_branch)
 fi
 
-echo "Repo: $repo"
-echo "Branch: $branch"
+if [[ $chatty ]]; then
+    echo "Repo: $repo"
+    echo "Branch: $branch"
+fi
 
 # Download single path
 if [[ $# == 1 ]]; then
